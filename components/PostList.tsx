@@ -20,6 +20,7 @@ import { useMastodonAccount } from '../hooks/useMastodonAccount';
 import { useReasons } from '../hooks/useReasons';
 import { useTags } from '../hooks/useTags';
 import { ImageModal } from './ImageModal';
+import ExternalLink from "./ExternalLink";
 import MediaAttachment from './MediaAttachment';
 import PostCard from './PostCard';
 import PostPoll from "./PostPoll";
@@ -125,16 +126,11 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
           if (post.reblog && 
             (( filterSettings.chronological && postIDs.has(post.reblog.id)) ||
              (!filterSettings.chronological && postIDsReblogged.has(post.reblog.id) && postIDsReblogged.get(post.reblog.id)![0] !== post.id))) {
-            return (
+              return (
               <div key={post.id} className="flex items-center space-x-2 text-sm sm:text-base text-gray-500 italic p-4">
                     <ArrowPathIcon className="w-5 h-5 text-gray-400" />
                     <span>
-                      <a
-                        href={post.account_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline font-semibold"
-                      >
+                      <ExternalLink href={post.account_url} className="font-semibold">
                         {post.account_avatar && (
                         <img
                           src={post.account_avatar}
@@ -143,14 +139,9 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                         />
                       )}
                         {post.account_display_name}
-                      </a>{" "}
+                      </ExternalLink>{" "}
                       <a href={`#${post.reblog.id}`} >boosted</a> {post.reblog.account_display_name} on{" "}
-                      <a
-                        href={post.uri}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
-                      >{formatDateTime(post.created_at)}</a>
+                      <ExternalLink href={post.uri}>{formatDateTime(post.created_at)}</ExternalLink>
                     </span>
                   </div>
             );
@@ -190,7 +181,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
           // TODO - Add way to reveal the muted post
 
           return (
-            <div id={reblogger ? reblogger.id : post.id}  key={reblogger ? reblogger.id : post.id} className="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden max-w-full">
+            <div id={post.id} key={reblogger ? reblogger.id : post.id} className="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden max-w-full">
 
               <article className={`flex-grow min-w-0 ${
                 // containsMutedWord(nonStopWords, mutedWords) ? 'bg-blue-50 opacity-10 hover:opacity-75'
@@ -212,22 +203,9 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                   <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-500 italic px-4 pt-2">
                     <ArrowPathIcon className="w-5 h-5 text-gray-400" />
                     <span>
-                      <a
-                        href={reblogger.account_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline font-semibold"
-                        title={reblogger.account_display_name}
-                      >
-                        {reblogger.account_acct}
-                      </a>{" "}
-                      boosted on{" "}
-                      <a
-                        href={reblogger.uri}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
-                      >{formatDateTime(reblogger.created_at)}</a>
+                      <ExternalLink href={reblogger.account_url}>{reblogger.account_acct}</ExternalLink>
+                      {" "}boosted on{" "}
+                      <ExternalLink href={reblogger.uri}>{formatDateTime(reblogger.created_at)}</ExternalLink>
                     </span>
                   </div>
                 )}
@@ -237,37 +215,26 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                 {/* Post Header */}
                 <div className={`p-2 sm:p-3 flex items-start space-x-2`}>
                   {post.account_url && (
-                    <a
-                      href={post.account_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-shrink-0"
-                    >
+                    <ExternalLink href={post.account_url} className="flex-shrink-0">
                       {post.account_avatar && (
                         <img
                           src={post.account_avatar}
-                          alt=""
                           className="w-10 h-10 rounded-full hover:opacity-90 transition-opacity"
                         />
                       )}
-                    </a>
+                    </ExternalLink>
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className="flex  justify-between">
+                    <div className="flex justify-between">
                       <div className="flex">
-                        <a
-                          href={post.account_url ? post.account_url : '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:underline inline-block"
-                        >
+                        <ExternalLink href={post.account_url || '#'}>
                           <div className="font-medium text-xs sm:text-base text-gray-900">
                             {matchingReason || isMuted ? trimString(post.account_display_name) : post.account_display_name}
                           </div>
                           <div className="text-sm text-gray-500">
                             @{post.account_username}
                           </div>
-                        </a>
+                        </ExternalLink>
 
                         <button
                           onClick={() => setActiveAccount(post.account_id)}
@@ -347,15 +314,15 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                           }
                         </div>
                       ) : ''}
-                      <div className="text-right">
-                        <a
-                          href={post.url ? post.url : post.uri}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs sm:text-sm text-gray-500 hover:underline"
-                        >{formatDateTime(post.created_at)}</a>
+                      <div className="text-right text-xs sm:text-sm text-gray-500">
+                        <ExternalLink
+                          href={post.url || post.uri}
+                          className='text-gray-500'
+                        >
+                          {formatDateTime(post.created_at)}
+                        </ExternalLink>
 
-                        <div className="text-xs sm:text-sm text-gray-500">
+                        <div>
                           {post.account_acct.split('@').length > 1 ? '*@' + post.account_acct.split('@')[1] : ''}
                         </div>
                       </div>
