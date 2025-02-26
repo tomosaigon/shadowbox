@@ -9,6 +9,7 @@ import {
   FolderMinusIcon,
   BookmarkIcon,
 } from '@heroicons/react/24/solid';
+import { User } from "@heroui/react";
 import React, { useState, useEffect } from 'react';
 import { Post, IMediaAttachment, AccountTag } from '../db/database';
 import { getNonStopWords, postContainsMutedWord, getMutedWordsFoundInPost } from '@/utils/nonStopWords';
@@ -172,22 +173,18 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
 
                 {/* Post Header */}
                 <div className={`p-2 sm:p-3 flex items-start space-x-2`}>
-                  {post.account_url && (
-                    <ExternalLink href={post.account_url} className="flex-shrink-0">
-                      {post.account_avatar && <Avatar src={post.account_avatar} size={10} />}
-                    </ExternalLink>
-                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between">
                       <div className="flex">
-                        <ExternalLink href={post.account_url || '#'}>
-                          <div className="font-medium text-xs sm:text-base text-gray-900">
-                            {matchingReason || isMuted ? trimString(post.account_display_name) : post.account_display_name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            @{post.account_username}
-                          </div>
-                        </ExternalLink>
+                        <User
+                          avatarProps={{
+                            src: post.account_avatar
+                          }}
+                          name={matchingReason || isMuted ? trimString(post.account_display_name) : post.account_display_name}
+                          description={
+                            <ExternalLink href={post.account_url || '#'}>@{post.account_username}</ExternalLink>
+                          }
+                        />
 
                         <button
                           onClick={() => setActiveAccount(post.account_id)}

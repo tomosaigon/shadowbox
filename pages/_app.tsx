@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster, ToastOptions, ToastPosition } from 'react-hot-toast';
+import {HeroUIProvider} from "@heroui/react";
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import '../styles/globals.css';
@@ -23,7 +24,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <QueryClientProvider client={queryClient}>
         <ServersProvider>
-          <Component {...pageProps} />
+          <HeroUIProvider>
+            <Component {...pageProps} />
+          </HeroUIProvider>
         </ServersProvider>
       </QueryClientProvider>
       <Toaster toastOptions={toastOptions} />
