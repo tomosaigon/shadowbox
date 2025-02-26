@@ -10,11 +10,11 @@ import {
   BookmarkIcon,
 } from '@heroicons/react/24/solid';
 import React, { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
 import { Post, IMediaAttachment, AccountTag } from '../db/database';
 import { getNonStopWords, postContainsMutedWord, getMutedWordsFoundInPost } from '@/utils/nonStopWords';
 import { formatDateTime, trimString } from '@/utils/format';
 import { useServers } from '../context/ServersContext';
+import { useMarkPosts } from '@/hooks/useMarkPosts';
 import { useMutedWords } from '../hooks/useMutedWords';
 import { useMastodonAccount } from '../hooks/useMastodonAccount';  
 import { useReasons } from '../hooks/useReasons';
@@ -50,6 +50,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
   const [activeRepliesPost, setActiveRepliesPost] = useState<Post | null>(null);
   const { getServerBySlug} = useServers();
   const { handleFollow, handleFavorite, hasApiCredentials } = useMastodonAccount({ baseUrl: getServerBySlug(server)?.uri??'' }); // XXX
+  const { markAccountSeen, markSaved } = useMarkPosts(server);
 
   useEffect(() => {
     setPosts(initialPosts);
@@ -66,43 +67,6 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
           : post
       )
     );
-  }
-
-  const handleMarkAccountSeen = async (acct: string) => {
-    try {
-      const res = await fetch(`/api/mark-account-seen?server=${server}&acct=${acct}`, {
-        method: 'POST',
-      });
-  
-      if (!res.ok) {
-        throw new Error(`Mark seen failed: ${res.statusText}`);
-      }
-  
-      const data = await res.json();
-      toast.success(`Marked ${data.updatedCount} posts as seen`);
-  
-      invalidateTimeline();
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to mark posts as seen');
-    }
-  };
-  
-  const handleMarkSaved = async (postId: string) => {
-    try {
-      const res = await fetch(`/api/mark-saved?server=${server}&id=${postId}&saved=true`, {
-        method: 'POST',
-      });
-      if (!res.ok) {
-        throw new Error(`Mark saved failed: ${res.statusText}`);
-      }
-  
-      const data = await res.json();
-      toast.success(`Marked ${data.updatedCount} posts as saved`);
-    } catch (error) {
-      console.error('Error marking post saved:', error);
-      toast.error('Error marking post saved');
-    }
   }
 
   // "Do not show new boosts for posts that have been recently boosted (only affects newly-received boosts)""
@@ -246,7 +210,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                         </button>
 
                         <AsyncButton
-                          callback={() => handleMarkAccountSeen(post.account_acct)}
+                          callback={() => markAccountSeen({acct: post.account_acct, invalidateTimeline})}
                           defaultText={
                             <FolderMinusIcon
                               className="mr-2 w-4 sm:w-6 h-4 sm:h-8 cursor-pointer text-gray-400 hover:text-red-500 transition-colors"
@@ -375,7 +339,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                 {matchingReason || isMuted ? null : (
                   <div className="px-4 py-3 border-t border-gray-100 flex items-center space-x-6 text-gray-500">
                     <AsyncButton
-                        callback={() => handleMarkSaved(post.id)}
+                        callback={() => markSaved(post.id)}
                         defaultText={
                           <>
                             <BookmarkIcon

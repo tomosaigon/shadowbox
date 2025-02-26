@@ -1,12 +1,11 @@
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/router';
-// import Head from 'next/head';
 import { useEffect, useState, useRef } from 'react';
-import { toast } from 'react-hot-toast';
 import { useServers } from '@/context/ServersContext';
 import { useServerStats } from '@/hooks/useServerStats';
 import { useTimeline } from '@/hooks/useTimeline';
 import { useSyncPosts } from '@/hooks/useSyncPosts';
+import { useMarkPosts } from '@/hooks/useMarkPosts';
 import PostList from '../../components/PostList';
 import AsyncButton from '../../components/AsyncButton';
 import Link from 'next/link';
@@ -17,8 +16,6 @@ import Head from 'next/head';
 
 const POSTS_PER_PAGE = 25;
 const FILTER_SETTINGS_KEY = 'filterSettings';
-
-
 
 export default function CategoryPage() {
   const router = useRouter();
@@ -46,6 +43,7 @@ export default function CategoryPage() {
   });
 
   const { bucket, label: bucketLabel } = getCategoryBySlug(category);
+  const { markSeen } = useMarkPosts(server || '', bucket);
   const posts =
     postsData?.pages.flatMap((page) => page.buckets[category] || []) || [];
 
@@ -176,39 +174,14 @@ export default function CategoryPage() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleMarkSeen = async () => {
+    // Still needed?
+    // const fetchId = ++latestFetchId.current;
+    await markSeen({ posts, chronological: !!chronological, invalidateTimeline });
+    //   if (fetchId !== latestFetchId.current) return;
     scrollContainerRef.current?.scrollTo({
       top: 0,
       behavior: 'smooth',
     });
-
-    if (posts.length === 0) {
-      toast.error('No posts to mark as seen');
-      return;
-    }
-  
-    const fetchId = ++latestFetchId.current;
-    const seenFrom = posts[chronological ? 0 : posts.length - 1].created_at; // Oldest post
-    const seenTo = posts[chronological ? posts.length - 1 : 0].created_at; // Latest post
-  
-    try {
-      const res = await fetch(`/api/mark-seen?server=${server}&seenFrom=${seenFrom}&seenTo=${seenTo}&bucket=${bucket}`, {
-        method: 'POST',
-      });
-  
-      if (!res.ok) {
-        throw new Error(`Mark seen failed: ${res.statusText}`);
-      }
-  
-      const data = await res.json();
-      toast.success(`Marked ${data.updatedCount} posts as seen`);
-  
-      if (fetchId !== latestFetchId.current) return;
-  
-      invalidateTimeline(); // Reload posts if new content
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to mark posts as seen');
-    }
   };
 
   function getAdjacentCategory(
