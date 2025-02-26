@@ -16,7 +16,7 @@ import { formatDateTime, trimString } from '@/utils/format';
 import { useServers } from '../context/ServersContext';
 import { useMarkPosts } from '@/hooks/useMarkPosts';
 import { useMutedWords } from '../hooks/useMutedWords';
-import { useMastodonAccount } from '../hooks/useMastodonAccount';  
+import { useMastodonAccount } from '../hooks/useMastodonAccount';
 import { useReasons } from '../hooks/useReasons';
 import { useTags } from '../hooks/useTags';
 import { ImageModal } from './ImageModal';
@@ -48,8 +48,8 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
   const [activePost, setActivePost] = useState<Post | null>(null);
   const [activeAccount, setActiveAccount] = useState<string | null>(null);
   const [activeRepliesPost, setActiveRepliesPost] = useState<Post | null>(null);
-  const { getServerBySlug} = useServers();
-  const { handleFollow, handleFavorite, hasApiCredentials } = useMastodonAccount({ baseUrl: getServerBySlug(server)?.uri??'' }); // XXX
+  const { getServerBySlug } = useServers();
+  const { handleFollow, handleFavorite, hasApiCredentials } = useMastodonAccount({ baseUrl: getServerBySlug(server)?.uri ?? '' }); // XXX
   const { markAccountSeen, markSaved } = useMarkPosts(server);
 
   useEffect(() => {
@@ -87,27 +87,27 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
     <div className="w-full sm:max-w-4xl mx-0 sm:mx-auto p-0">
       <div className="space-y-1 sm:space-y-2">
         {posts.map((post, _idx) => {
-          if (post.reblog && 
-            (( filterSettings.chronological && postIDs.has(post.reblog.id)) ||
-             (!filterSettings.chronological && postIDsReblogged.has(post.reblog.id) && postIDsReblogged.get(post.reblog.id)![0] !== post.id))) {
-              return (
+          if (post.reblog &&
+            ((filterSettings.chronological && postIDs.has(post.reblog.id)) ||
+              (!filterSettings.chronological && postIDsReblogged.has(post.reblog.id) && postIDsReblogged.get(post.reblog.id)![0] !== post.id))) {
+            return (
               <div key={post.id} className="flex items-center space-x-2 text-sm sm:text-base text-gray-500 italic p-4">
-                    <ArrowPathIcon className="w-5 h-5 text-gray-400" />
-                    <span>
-                      <ExternalLink href={post.account_url} className="font-semibold">
-                        {post.account_avatar && (
-                        <img
-                          src={post.account_avatar}
-                          alt=""
-                          className="inline mr-1 w-6 h-6 rounded-full hover:opacity-90 transition-opacity"
-                        />
-                      )}
-                        {post.account_display_name}
-                      </ExternalLink>{" "}
-                      <a href={`#${post.reblog.id}`} >boosted</a> {post.reblog.account_display_name} on{" "}
-                      <ExternalLink href={post.uri}>{formatDateTime(post.created_at)}</ExternalLink>
-                    </span>
-                  </div>
+                <ArrowPathIcon className="w-5 h-5 text-gray-400" />
+                <span>
+                  <ExternalLink href={post.account_url} className="font-semibold">
+                    {post.account_avatar && (
+                      <img
+                        src={post.account_avatar}
+                        alt=""
+                        className="inline mr-1 w-6 h-6 rounded-full hover:opacity-90 transition-opacity"
+                      />
+                    )}
+                    {post.account_display_name}
+                  </ExternalLink>{" "}
+                  <a href={`#${post.reblog.id}`} >boosted</a> {post.reblog.account_display_name} on{" "}
+                  <ExternalLink href={post.uri}>{formatDateTime(post.created_at)}</ExternalLink>
+                </span>
+              </div>
             );
             // return <span key={post.id} className="hidden">duplicate {post.id}</span>;
           }
@@ -125,15 +125,15 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
           if (post.reblog) {
             reblogger = { ...post };
             post = post.reblog;
-          // } else if (filterSettings.chronological && postIDsReblogged.has(post.id)) {
-          //   // XXX
-          //   reblogger = posts.find(p => p.id === postIDsReblogged.get(post.id)![0]);
+            // } else if (filterSettings.chronological && postIDsReblogged.has(post.id)) {
+            //   // XXX
+            //   reblogger = posts.find(p => p.id === postIDsReblogged.get(post.id)![0]);
           }
 
           const postText = [
             // post.content.replace(/<[^>]*>/g, ''),
             post.content,
-            post.media_attachments.map((m) => m.description).join(' '), 
+            post.media_attachments.map((m) => m.description).join(' '),
             post.card?.title, post.card?.description,
             post.poll?.options.map((o) => o.title).join(' ')
           ].join('\n');
@@ -150,18 +150,18 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
               <article className={`flex-grow min-w-0 ${
                 // containsMutedWord(nonStopWords, mutedWords) ? 'bg-blue-50 opacity-10 hover:opacity-75'
                 false ? 'XXX'
-                : filterSettings.highlightThreshold && post.reblogs_count + post.favourites_count > filterSettings.highlightThreshold
-                ? 'bg-pink-100 border-l-4 border-pink-400 hover:bg-green-100'
-                : post.account_tags?.some(t => t.tag === 'cookie')
-                  ? 'bg-green-50 border-l-4 border-green-400 hover:bg-green-100'
-                  : post.account_tags?.some(t => t.tag === 'phlog') // TODO color programmatically
-                  ? 'bg-yellow-100 opacity-20 hover:opacity-75'
-                  : post.account_tags?.some(t => t.tag === 'spam')
-                  ? 'bg-red-50/5 opacity-10 hover:opacity-25 transition-all text-xs sm:text-[0.625rem]'
-                // : post.account_tags?.some(t => t.tag === 'bitter')
-                //   ? 'bg-yellow-50 opacity-20 hover:opacity-75 transition-all text-xs sm:text-[0.625rem]'
-                : 'bg-white'
-              }`}>
+                  : filterSettings.highlightThreshold && post.reblogs_count + post.favourites_count > filterSettings.highlightThreshold
+                    ? 'bg-pink-100 border-l-4 border-pink-400 hover:bg-green-100'
+                    : post.account_tags?.some(t => t.tag === 'cookie')
+                      ? 'bg-green-50 border-l-4 border-green-400 hover:bg-green-100'
+                      : post.account_tags?.some(t => t.tag === 'phlog') // TODO color programmatically
+                        ? 'bg-yellow-100 opacity-20 hover:opacity-75'
+                        : post.account_tags?.some(t => t.tag === 'spam')
+                          ? 'bg-red-50/5 opacity-10 hover:opacity-25 transition-all text-xs sm:text-[0.625rem]'
+                          // : post.account_tags?.some(t => t.tag === 'bitter')
+                          //   ? 'bg-yellow-50 opacity-20 hover:opacity-75 transition-all text-xs sm:text-[0.625rem]'
+                          : 'bg-white'
+                }`}>
                 {/* Reblog Header */}
                 {reblogger && (
                   <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-500 italic px-4 pt-2">
@@ -210,7 +210,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                         </button>
 
                         <AsyncButton
-                          callback={() => markAccountSeen({acct: post.account_acct, invalidateTimeline})}
+                          callback={() => markAccountSeen({ acct: post.account_acct, invalidateTimeline })}
                           defaultText={
                             <FolderMinusIcon
                               className="mr-2 w-4 sm:w-6 h-4 sm:h-8 cursor-pointer text-gray-400 hover:text-red-500 transition-colors"
@@ -231,11 +231,11 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                           />
                         ) : (
                           <div className="inline-block">
-                            <UserPlusIcon 
+                            <UserPlusIcon
                               className="w-4 sm:w-6 h-4 sm:h-8 cursor-pointer text-gray-400"
                               title='You need to configure API credentials to follow'
                             />
-                            </div>
+                          </div>
                         )}
 
                       </div>
@@ -266,8 +266,8 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                                   key={word}
                                   onClick={() => deleteMutedWord(word)} // Call the function when clicked
                                   className={`mr-1 mb-1 px-1 sm:px-2 py-0 rounded text-xs sm:text-sm ${word.startsWith('#')
-                                      ? 'bg-red-500 text-white hover:bg-red-600' // Styling for hashtags
-                                      : 'bg-orange-500 text-white hover:bg-red-600'  // Styling for regular words
+                                    ? 'bg-red-500 text-white hover:bg-red-600' // Styling for hashtags
+                                    : 'bg-orange-500 text-white hover:bg-red-600'  // Styling for regular words
                                     }`}
                                   title={`Unmute "${word}"`}
                                 >
@@ -297,14 +297,14 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                 {/* Reply Link */}
                 {!matchingReason && !isMuted && post.in_reply_to_id && (
                   <div className="flex items-center text-sm sm:text-base text-gray-500 px-4 pt-0">
-                  <button
-                    onClick={() => setActiveRepliesPost(post)}
-                    className="flex items-center space-x-2 text-blue-500 hover:underline focus:outline-none"
-                  >
-                    <ArrowUturnLeftIcon className="w-5 h-5 text-gray-400" />
-                    <span>View thread</span>
-                  </button>
-                </div>
+                    <button
+                      onClick={() => setActiveRepliesPost(post)}
+                      className="flex items-center space-x-2 text-blue-500 hover:underline focus:outline-none"
+                    >
+                      <ArrowUturnLeftIcon className="w-5 h-5 text-gray-400" />
+                      <span>View thread</span>
+                    </button>
+                  </div>
                 )}
 
                 {matchingReason ? '' : isMuted ? '' : (
@@ -339,18 +339,18 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                 {matchingReason || isMuted ? null : (
                   <div className="px-4 py-3 border-t border-gray-100 flex items-center space-x-6 text-gray-500">
                     <AsyncButton
-                        callback={() => markSaved(post.id)}
-                        defaultText={
-                          <>
-                            <BookmarkIcon
-                              className="w-4 h-4 cursor-pointer hover:text-yellow-500 transition-colors"
-                              title='Bookmark as saved'
-                            />
-                            {/* <span>fav</span> */}
-                          </>
-                        }
-                        color={'yellow'}
-                      />
+                      callback={() => markSaved(post.id)}
+                      defaultText={
+                        <>
+                          <BookmarkIcon
+                            className="w-4 h-4 cursor-pointer hover:text-yellow-500 transition-colors"
+                            title='Bookmark as saved'
+                          />
+                          {/* <span>fav</span> */}
+                        </>
+                      }
+                      color={'yellow'}
+                    />
                     <div
                       className="flex items-center space-x-2 cursor-pointer"
                       onClick={() => setActiveRepliesPost(post)}
@@ -359,7 +359,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                       <ChatBubbleOvalLeftEllipsisIcon
                         className="w-5 h-5 cursor-pointer hover:text-yellow-500 transition-colors"
                       />
-                        <span className="text-sm">{post.replies_count || 0}</span>
+                      <span className="text-sm">{post.replies_count || 0}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <ArrowsRightLeftIcon className="w-5 h-5" />
@@ -370,7 +370,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                         onClick={() => handleFavorite(post.url)}
                         className="w-5 h-5 cursor-pointer hover:text-yellow-500 transition-colors"
                         title='Favorite'
-                      />) : (<StarIcon 
+                      />) : (<StarIcon
                         className="w-5 h-5 text-gray-400"
                         title='You need to configure API credentials to favorite'
                       />)}
@@ -388,12 +388,11 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                         <button
                           key={word}
                           onClick={() => mutedWordsFound.includes(word) ? deleteMutedWord(word) : createMutedWord(word)}
-                          className={`px-2 py-1 rounded text-xs sm:text-sm ${
-                            mutedWordsFound.includes(word) ? 'bg-gray-300 text-gray-500' :
-                            word.startsWith('#')
-                              ? 'bg-red-500 text-white hover:bg-red-600' // Styling for hashtags
-                              : 'bg-orange-500 text-white hover:bg-red-600'  // Styling for regular words
-                          }`}
+                          className={`px-2 py-1 rounded text-xs sm:text-sm ${mutedWordsFound.includes(word) ? 'bg-gray-300 text-gray-500' :
+                              word.startsWith('#')
+                                ? 'bg-red-500 text-white hover:bg-red-600' // Styling for hashtags
+                                : 'bg-orange-500 text-white hover:bg-red-600'  // Styling for regular words
+                            }`}
                           title='Click to mute/unmute'
                         >
                           {word}
@@ -406,45 +405,45 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
 
               {/* Admin section - full width on mobile, side panel on desktop */}
               {matchingReason ? '' : isMuted ? '' : (
-              <div className="w-full flex items-start space-x-4 border-t sm:border-t-0 sm:border-l p-2 bg-gray-50">
-                <div className="flex flex-row gap-1 sm:gap-2 max-h-32 sm:max-h-64 overflow-y-auto relative">
-                  {reasons.filter(reason => reason.active === 1).map(({ reason: tag, filter }) => {
-                    const hasTag = post.account_tags?.some(t => t.tag === tag);
-                    const count = getAccountTagCount(post.account_tags, tag);
-                    const color = filter === 1 ? 'red' : 'green';
+                <div className="w-full flex items-start space-x-4 border-t sm:border-t-0 sm:border-l p-2 bg-gray-50">
+                  <div className="flex flex-row gap-1 sm:gap-2 max-h-32 sm:max-h-64 overflow-y-auto relative">
+                    {reasons.filter(reason => reason.active === 1).map(({ reason: tag, filter }) => {
+                      const hasTag = post.account_tags?.some(t => t.tag === tag);
+                      const count = getAccountTagCount(post.account_tags, tag);
+                      const color = filter === 1 ? 'red' : 'green';
 
-                    return (
-                      <div key={tag} className="flex flex-row gap-1 ">
-                        <AsyncButton
-                          callback={async () => {
-                            const tags = await handleTag(tag, post.account_id, post.account_username, post.server_slug);
-                            if (tags) {
-                              updateAccountTags(post.account_id, tags);
-                            }
-                          }}
-                          defaultText={hasTag ? `${tag}(${count})` : tag}
-                          color={color}
-                          extraClasses='text-xs sm:text-sm'
-                        />
-                        {hasTag ? (
+                      return (
+                        <div key={tag} className="flex flex-row gap-1 ">
                           <AsyncButton
                             callback={async () => {
-                              const tags = await handleClearTag(post.account_id, post.account_username, tag, post.server_slug);
+                              const tags = await handleTag(tag, post.account_id, post.account_username, post.server_slug);
                               if (tags) {
                                 updateAccountTags(post.account_id, tags);
                               }
                             }}
-                            loadingText={`Clearing ${tag}...`}
-                            defaultText="×"
+                            defaultText={hasTag ? `${tag}(${count})` : tag}
                             color={color}
+                            extraClasses='text-xs sm:text-sm'
                           />
-                        ) : null}
+                          {hasTag ? (
+                            <AsyncButton
+                              callback={async () => {
+                                const tags = await handleClearTag(post.account_id, post.account_username, tag, post.server_slug);
+                                if (tags) {
+                                  updateAccountTags(post.account_id, tags);
+                                }
+                              }}
+                              loadingText={`Clearing ${tag}...`}
+                              defaultText="×"
+                              color={color}
+                            />
+                          ) : null}
 
-                      </div>
-                    )
-                  })}
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
               )}
 
             </div>
@@ -477,7 +476,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
           accountId={activeAccount}
           onClose={() => setActiveAccount(null)}
         />
-    )}
+      )}
     </div>
   );
 };
