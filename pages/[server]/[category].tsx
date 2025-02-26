@@ -198,7 +198,7 @@ export default function CategoryPage() {
       if (!filterSettings.enableMedia && ['videos', 'with-images'].includes(slug)) {
         return false;
       }
-      if (!filterSettings.enableForeignBots && ['from-bots', 'network-mentions', 'non-english'].includes(slug)) {
+      if (!filterSettings.enableForeignBots && ['from-bots', 'direct-mentions', 'non-english'].includes(slug)) {
         return false;
       }
       if (slug === 'reblogs' && server !== '$HOME') {

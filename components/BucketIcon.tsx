@@ -32,7 +32,7 @@ const BucketIcon: React.FC<BucketIconProps> = ({ bucket, className = 'h-4 w-4' }
       return <PhotoIcon className={className} />;
     case Bucket.asReplies:
       return <ChatBubbleBottomCenterTextIcon className={className} />;
-    case Bucket.networkMentions:
+    case Bucket.directMentions:
       return <MegaphoneIcon className={className} />;
     case Bucket.hashtags:
       return <HashtagIcon className={className} />;

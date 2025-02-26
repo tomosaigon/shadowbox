@@ -9,7 +9,7 @@ export const CATEGORY_MAP = [
   { slug: 'with-links', bucket: Bucket.withLinks, label: 'Links' },
   { slug: 'videos', bucket: Bucket.videos, label: 'Videos' },
   // { slug: 'replies', bucket: Bucket.asReplies, label: 'Replies' },
-  { slug: 'network-mentions', bucket: Bucket.networkMentions, label: 'Mentions' },
+  { slug: 'direct-mentions', bucket: Bucket.directMentions, label: 'Mentions' },
   { slug: 'from-bots', bucket: Bucket.fromBots, label: 'Bots' },
   { slug: 'non-english', bucket: Bucket.nonEnglish, label: 'Non-English' },
   { slug: 'reblogs', bucket: Bucket.reblogs, label: 'Reblogs' },

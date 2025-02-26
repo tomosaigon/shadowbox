@@ -4,7 +4,7 @@ export enum Bucket {
   nonEnglish = 'nonEnglish',
   withImages = 'withImages',
   asReplies = 'asReplies',
-  networkMentions = 'networkMentions',
+  directMentions = 'directMentions',
   hashtags = 'hashtags',
   withLinks = 'withLinks',
   fromBots = 'fromBots',
@@ -37,7 +37,7 @@ export function determineBucket(post: Post): Bucket {
   if (isVideoPost(mediaAttachments, post.card, post.content)) return Bucket.videos;
   if (post.card && post.card.type === 'link') return Bucket.withLinks;
   if (mediaAttachments?.length > 0 || post.card && post.card.type === 'photo') return Bucket.withImages;
-  if (isNetworkMentionPost(post.content)) return Bucket.networkMentions;
+  if (isDirectMentionPost(post.content)) return Bucket.directMentions;
   if (isHashtagPost(post.content)) return Bucket.hashtags;
   if (post.content.includes('<a href="')) return Bucket.withLinks;
   // if (post.in_reply_to_id) return Bucket.asReplies;
@@ -51,7 +51,7 @@ function isHashtagPost(content: string): boolean {
   return links.some(link => link.includes('class="mention hashtag"') || link.includes('class="hashtag"'));
 }
 
-function isNetworkMentionPost(content: string): boolean {
+function isDirectMentionPost(content: string): boolean {
   // only apply to cases where the mention is at the beginning of the post.
   const textContent = content.replace(/<[^>]*>/g, ''); // Strip out HTML tags
   return textContent.startsWith('@');

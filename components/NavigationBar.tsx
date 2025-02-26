@@ -182,7 +182,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                 if (!filterSettings.enableMedia && (slug === 'videos' || slug === 'with-images')) {
                   return false;
                 }
-                if (!filterSettings.enableForeignBots && (slug === 'from-bots' || slug === 'network-mentions' || slug === 'non-english')) {
+                if (!filterSettings.enableForeignBots && (slug === 'from-bots' || slug === 'direct-mentions' || slug === 'non-english')) {
                   return false;
                 }
                 if (slug === 'reblogs' && server !== '$HOME') {
