@@ -774,6 +774,7 @@ export class DatabaseManager {
           SELECT p.*
           FROM posts p
           WHERE p.account_id = ?
+          AND p.bucket != 'reblogs'
           ORDER BY p.created_at DESC
           LIMIT ? OFFSET ?
           `
