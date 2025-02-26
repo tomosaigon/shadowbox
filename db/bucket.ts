@@ -66,7 +66,7 @@ function containsQuestion(content: string): boolean {
 function isVideoPost(mediaAttachments: any[], card: PostCard | null, content: string): boolean {
   // Check media attachments for video types
   const videoMimeTypes = ["video/mp4", "video/webm", "video/ogg", "video/quicktime"];
-  const hasVideoAttachment = mediaAttachments.some(attachment => videoMimeTypes.includes(attachment.type));
+  const hasVideoAttachment = mediaAttachments.some(attachment => videoMimeTypes.includes(attachment.type) || attachment.type === 'video');
 
   if (hasVideoAttachment) return true;
 
