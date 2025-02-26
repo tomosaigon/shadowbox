@@ -21,4 +21,8 @@
   .post-meta {
     @apply text-base sm:text-sm;
   }
+
+  .prose .invisible {
+    visibility: visible !important;
+}
 }
