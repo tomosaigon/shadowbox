@@ -42,6 +42,7 @@ interface PostListProps {
 
 const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filterSettings, invalidateTimeline }) => {
   const { reasons } = useReasons();
+  const activeReasons = reasons.filter(reason => reason.active === 1);
   const { mutedWords, createMutedWord, deleteMutedWord } = useMutedWords();
   const { handleTag, handleClearTag, getAccountTagCount } = useTags();
   const [posts, setPosts] = useState(initialPosts);
@@ -110,10 +111,8 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
             return (<div key={post.id} className="hidden">origin {post.id}</div>);
           }
 
-          const matchingReason = reasons.find(
-            (reason) =>
-              reason.filter === 1 &&
-              post.account_tags.some((tag) => tag.tag === reason.reason)
+          const matchingReason = activeReasons.find(
+            (reason) => post.account_tags.some((tag) => tag.tag === reason.reason)
           );
 
           let reblogger = null;
@@ -397,7 +396,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
               {matchingReason ? '' : isMuted ? '' : (
                 <div className="w-full flex items-start space-x-4 border-t sm:border-t-0 sm:border-l p-2 bg-gray-50">
                   <div className="flex flex-row gap-1 sm:gap-2 max-h-32 sm:max-h-64 overflow-y-auto relative">
-                    {reasons.filter(reason => reason.active === 1).map(({ reason: tag, filter }) => {
+                    {activeReasons.map(({ reason: tag, filter }) => {
                       const hasTag = post.account_tags?.some(t => t.tag === tag);
                       const count = getAccountTagCount(post.account_tags, tag);
                       const color = filter === 1 ? 'red' : 'green';
