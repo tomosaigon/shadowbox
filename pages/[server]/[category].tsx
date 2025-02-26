@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState, useRef } from 'react';
 import { useServers } from '@/context/ServersContext';
 import { useServerStats } from '@/hooks/useServerStats';
+import { useDestroyPosts } from '@/hooks/useDestroyPosts';
 import { useTimeline } from '@/hooks/useTimeline';
 import { useSyncPosts } from '@/hooks/useSyncPosts';
 import { useMarkPosts } from '@/hooks/useMarkPosts';
@@ -41,6 +42,7 @@ export default function CategoryPage() {
     chronological,
     postsPerPage: POSTS_PER_PAGE,
   });
+  const { deletePosts, destroyDatabase } = useDestroyPosts(invalidateTimeline, invalidateServerStats);
 
   const { bucket, label: bucketLabel } = getCategoryBySlug(category);
   const { markSeen } = useMarkPosts(server || '', bucket);
@@ -55,7 +57,7 @@ export default function CategoryPage() {
     await fetchNextPage();
   };
 
-  const latestFetchId = useRef(0);
+  // const latestFetchId = useRef(0);
 
   const [filterSettings, setFilterSettings] = useState({
     chronological: true,
@@ -118,57 +120,6 @@ export default function CategoryPage() {
   
   const handleSyncNewer5x = async () => {
     await syncPosts({ older: false, batch: 5 });
-  };
-
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete all posts?')) {
-      return;
-    }
-    
-    try {
-      const deleteRes = await fetch(`/api/timeline-sync?server=${server}&delete=true`, {
-        method: 'POST'
-      });
-      
-      if (!deleteRes.ok) {
-        throw new Error(`Delete failed: ${deleteRes.statusText}`);
-      }
-
-      invalidateTimeline(); // Reload posts if new content
-    } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        alert('Failed to delete posts: ' + error.message);
-      } else {
-        alert('Failed to delete posts: An unknown error occurred.');
-      }
-    }
-  };
-
-  // TODO refactor this to use a modal, hook
-  const handleDestroy = async () => {
-    if (!confirm('Are you sure you want to destroy the database? This will delete ALL posts from ALL servers.')) {
-      return;
-    }
-    
-    try {
-      const destroyRes = await fetch(`/api/timeline-sync?delete=true`, {
-        method: 'POST'
-      });
-
-      if (!destroyRes.ok) {
-        throw new Error(`Destroy failed: ${destroyRes.statusText}`);
-      }
-      
-      invalidateTimeline(); // Reload posts if new content
-    } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        alert('Failed to destroy database: ' + error.message);
-      } else {
-        alert('Failed to destroy database: An unknown error occurred.');
-      }
-    }
   };
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -306,8 +257,8 @@ export default function CategoryPage() {
           onSyncNewer={handleSyncNewer}
           onSyncNewer5x={handleSyncNewer5x}
           onSyncOlder={handleSyncOlder}
-          onDelete={handleDelete}
-          onDestroy={handleDestroy}
+          onDelete={() => deletePosts(server)}
+          onDestroy={destroyDatabase}
         />
         <div className="p-0 sm:p-8">
           <CategoryNavigation
