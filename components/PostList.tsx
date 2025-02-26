@@ -27,6 +27,7 @@ import PostPoll from "./PostPoll";
 import RepliesModal from './RepliesModal';
 import AsyncButton from './AsyncButton';
 import AccountPostsModal from './AccountPostsModal';
+import Avatar from './Avatar';
 
 interface PostListProps {
   posts: Post[];
@@ -95,13 +96,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                 <ArrowPathIcon className="w-5 h-5 text-gray-400" />
                 <span>
                   <ExternalLink href={post.account_url} className="font-semibold">
-                    {post.account_avatar && (
-                      <img
-                        src={post.account_avatar}
-                        alt=""
-                        className="inline mr-1 w-6 h-6 rounded-full hover:opacity-90 transition-opacity"
-                      />
-                    )}
+                    {post.account_avatar && <Avatar src={post.account_avatar} />}
                     {post.account_display_name}
                   </ExternalLink>{" "}
                   <a href={`#${post.reblog.id}`} >boosted</a> {post.reblog.account_display_name} on{" "}
@@ -180,12 +175,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                 <div className={`p-2 sm:p-3 flex items-start space-x-2`}>
                   {post.account_url && (
                     <ExternalLink href={post.account_url} className="flex-shrink-0">
-                      {post.account_avatar && (
-                        <img
-                          src={post.account_avatar}
-                          className="w-10 h-10 rounded-full hover:opacity-90 transition-opacity"
-                        />
-                      )}
+                      {post.account_avatar && <Avatar src={post.account_avatar} size={10} />}
                     </ExternalLink>
                   )}
                   <div className="flex-1 min-w-0">

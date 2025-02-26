@@ -6,6 +6,7 @@ import { Post } from '../db/database';
 import { useServers } from '../context/ServersContext';
 import { mastodonStatusToPost, MastodonStatus } from '../db/mastodonStatus';
 import { formatDateTime } from '@/utils/format';
+import Avatar from './Avatar';
 
 interface RepliesModalProps {
   post: Post;
@@ -69,11 +70,7 @@ const RepliesModal: React.FC<RepliesModalProps> = ({ post, onClose }) => {
           : 'border border-gray-200 bg-white'
       }`}
     >
-      <img
-        src={reply.account_avatar || ''}
-        alt={reply.account_display_name || 'Avatar'}
-        className="w-10 h-10 rounded-full"
-      />
+      <Avatar src={reply.account_avatar} size={10} />
       <div className="flex-1 min-w-0">
         <div className="text-sm flex justify-between items-center">
           <div>

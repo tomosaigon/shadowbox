@@ -2,6 +2,7 @@
 import { Post, IMediaAttachment } from '../db/database';
 import { useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
+import Avatar from './Avatar';
 
 interface ImageModalProps {
   media: IMediaAttachment;
@@ -46,11 +47,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({ media, post, onClose }) 
         <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <img 
-                src={post.account_avatar} 
-                alt="" 
-                className="w-8 h-8 rounded-full"
-              />
+            <Avatar src={post.account_avatar} className="w-8 h-8" />
               <div>
                 <div className="font-medium">{post.account_display_name}</div>
                 <div className="text-sm text-white/80">@{post.account_username}</div>
