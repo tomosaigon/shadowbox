@@ -26,7 +26,7 @@ export default function CategoryPage() {
   const server = typeof rawServer === 'string' ? rawServer : rawServer?.[0] ?? undefined;
   const category = typeof rawCategory === 'string' ? rawCategory : rawCategory?.[0] ?? 'regular';
 
-  const [chronological, setChronological] = useState<boolean | undefined>(undefined); 
+  const [chronological, setChronological] = useState<boolean | undefined>(undefined);
 
   const { getServerBySlug } = useServers();
   const { data: serverStats, invalidateServerStats } = useServerStats(server || '');
@@ -108,15 +108,15 @@ export default function CategoryPage() {
     invalidateTimeline,
     invalidateServerStats,
   });
-  
+
   const handleSyncNewer = async () => {
     await syncPosts({ older: false, batch: 1 });
   };
-  
+
   const handleSyncOlder = async () => {
     await syncPosts({ older: true, batch: 1 });
   };
-  
+
   const handleSyncNewer5x = async () => {
     await syncPosts({ older: false, batch: 5 });
   };
@@ -142,7 +142,7 @@ export default function CategoryPage() {
   //   <meta name="description" content={`Posts from ${server} in category ${bucketLabel}`} />
   // </Head>
   return (
-    <div className="flex flex-col min-h-screen" style={{ "overflowY": "scroll",  height: '100vh' }} ref={scrollContainerRef}>
+    <div className="flex flex-col min-h-screen" style={{ "overflowY": "scroll", height: '100vh' }} ref={scrollContainerRef}>
       <Head>
         <title>{server ? getServerBySlug(server)?.name : 'Unknown server'} / {getCategoryBySlug(category).label}</title>
       </Head>
@@ -183,12 +183,13 @@ export default function CategoryPage() {
                 invalidateTimeline={invalidateTimeline}
               />
               <div className="flex justify-center items-center space-x-4 py-4">
-                <button
-                  onClick={handleMarkSeen}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                >
-                  Mark Seen
-                </button>
+                <AsyncButton
+                  callback={handleMarkSeen}
+                  defaultText={`Mark Seen`}
+                  loadingText="Marking Seen..."
+                  color="yellow"
+                  // className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                />
                 {hasNextPage && (
                   <AsyncButton
                     callback={handleLoadMore}

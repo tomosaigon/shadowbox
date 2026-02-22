@@ -23,7 +23,9 @@ export function useSyncPosts({
       );
 
       if (!res.ok) {
-        throw new Error(`Sync failed: ${res.statusText}`);
+        // throw new Error(`Sync failed: ${res.statusText}`);
+        console.error('Error syncing posts:', res);
+        toast.error('Failed to sync posts');
       }
 
       const data = await res.json();
