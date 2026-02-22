@@ -57,21 +57,21 @@ const ServerDash: React.FC<ServerDashProps> = ({ server }) => {
       <AsyncButton
         callback={handleSyncNewer}
         loadingText="Syncing Newer..."
-        defaultText="Collect Newer Posts"
+        defaultText="Collect Newer"
         color="blue"
         extraClasses="ml-2"
       />
       <AsyncButton
         callback={handleSyncNewer10x}
         loadingText="Syncing Newer..."
-        defaultText="Collect Newer Posts 10x"
+        defaultText="Collect 10x"
         color="blue"
         extraClasses="ml-2"
       />
       <AsyncButton
         callback={() => disableServer(server)}
-        defaultText="Disable Server"
-        color="blue"
+        defaultText="Disable"
+        color="red"
         extraClasses="ml-2"
       />
       </h2>
