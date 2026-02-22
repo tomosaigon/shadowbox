@@ -84,7 +84,8 @@ export const useMastodonAccount = (serverConfig?: ServerConfig) => {
       const status = searchResponse.data.statuses?.[0];
       if (!status) {
         toast.error('Post not found on your server.');
-        throw new Error('Post not found');
+        return;
+        // throw new Error('Post not found');
       }
 
       const postId = status.id;
@@ -100,11 +101,41 @@ export const useMastodonAccount = (serverConfig?: ServerConfig) => {
     },
   });
 
+  const handleResolveUser = async (acct: string) => {
+    if (!hasApiCredentials) {
+      toast.error('Access token or server URL is missing');
+      throw new Error('Access token or server URL not found');
+    }
+
+    try {
+      const searchApiUrl = `${serverUrl}/api/v2/search`;
+      const response = await axios.get(searchApiUrl, {
+        params: { q: acct, resolve: true, type: 'accounts' },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      const account = response.data.accounts?.[0];
+      if (!account) {
+        toast.error('Account not found');
+        throw new Error('Account not found');
+      }
+
+      return account;
+    } catch (error) {
+      toast.error('Failed to resolve user');
+      throw new Error(error instanceof Error ? error.message : 'Unknown error');
+    }
+  };
+
   return {
     handleFollow: handleFollowMutation.mutateAsync,
     handleFavorite: handleFavoriteMutation.mutateAsync,
+    handleResolveUser,
     isFollowing: handleFollowMutation.isPending,
     isFavoriting: handleFavoriteMutation.isPending,
     hasApiCredentials,
+    serverUrl,
   };
 };
+
+export default useMastodonAccount;

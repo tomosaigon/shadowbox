@@ -10,7 +10,7 @@ import {
   BookmarkIcon,
 } from '@heroicons/react/24/solid';
 import { User } from "@heroui/react";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, act } from 'react';
 import { Post, IMediaAttachment, AccountTag } from '../db/database';
 import { getNonStopWords, postContainsMutedWord, getMutedWordsFoundInPost } from '@/utils/nonStopWords';
 import { formatDateTime, trimString } from '@/utils/format';
@@ -29,6 +29,8 @@ import RepliesModal from './RepliesModal';
 import AsyncButton from './AsyncButton';
 import AccountPostsModal from './AccountPostsModal';
 import Avatar from './Avatar';
+import PostDate from './PostDate';
+import AccountTagButtons from './AccountTagButtons';
 
 interface PostListProps {
   posts: Post[];
@@ -45,7 +47,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
   const { reasons } = useReasons();
   const activeReasons = reasons.filter(reason => reason.active === 1);
   const { mutedWords, createMutedWord, deleteMutedWord } = useMutedWords();
-  const { handleTag, handleClearTag, getAccountTagCount } = useTags();
+  const { handleClearTag } = useTags();
   const [posts, setPosts] = useState(initialPosts);
   const [activeImage, setActiveImage] = useState<IMediaAttachment | null>(null);
   const [activePost, setActivePost] = useState<Post | null>(null);
@@ -71,6 +73,23 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
       )
     );
   }
+
+  const preprocessTagCounts = (posts: Post[]) => {
+    const tagCountsByAccount: Record<string, Record<string, number>> = {};
+
+    posts.forEach(({ account_id, account_tags }) => {
+      if (!account_tags) return;
+      if (tagCountsByAccount[account_id]) return;
+
+      tagCountsByAccount[account_id] = {};
+      account_tags.forEach(({ tag, count }) => {
+        tagCountsByAccount[account_id][tag] = count;
+      });
+    });
+
+    return tagCountsByAccount;
+  };
+  const tagCountsByAccount = preprocessTagCounts(posts);
 
   // "Do not show new boosts for posts that have been recently boosted (only affects newly-received boosts)""
   // TODO Group boosts in timelines
@@ -113,7 +132,9 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
           }
 
           const matchingReason = activeReasons.find(
-            (reason) => post.account_tags.some((tag) => tag.tag === reason.reason)
+            (reason) =>
+              reason.filter === 1 &&
+              post.account_tags.some((tag) => tag.tag === reason.reason)
           );
 
           let reblogger = null;
@@ -187,7 +208,10 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                         />
 
                         <button
-                          onClick={() => setActiveAccount(post.account_id)}
+                          onClick={() => {
+                            setActiveAccount(post.account_id);
+                            setActivePost(post);
+                          }}
                           // className="flex items-center space-x-2 text-blue-500 hover:underline focus:outline-none"
                           className="ml-2 inline-block"
                           title="Show all posts from account"
@@ -265,12 +289,7 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                         </div>
                       ) : ''}
                       <div className="text-right text-xs sm:text-sm text-gray-500">
-                        <ExternalLink
-                          href={post.url || post.uri}
-                          className='text-gray-500'
-                        >
-                          {formatDateTime(post.created_at)}
-                        </ExternalLink>
+                        <PostDate url={post.url || post.uri} dateString={post.created_at} />
 
                         <div>
                           {post.account_acct.split('@').length > 1 ? '*@' + post.account_acct.split('@')[1] : ''}
@@ -352,11 +371,18 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                       <span className="text-sm">{post.reblogs_count || 0}</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {hasApiCredentials ? (<StarIcon
-                        onClick={() => handleFavorite(post.url)}
-                        className="w-5 h-5 cursor-pointer hover:text-yellow-500 transition-colors"
-                        title='Favorite'
-                      />) : (<StarIcon
+                      {hasApiCredentials ? (
+                        <AsyncButton
+                          callback={() => markSaved(post.id)}
+                          defaultText={<StarIcon
+                            onClick={() => handleFavorite(post.url)}
+                            className="w-5 h-5 cursor-pointer hover:text-yellow-500 transition-colors"
+                            title='Favorite'
+                          />
+                          }
+                          color={'yellow'}
+                        />
+                      ) : (<StarIcon
                         className="w-5 h-5 text-gray-400"
                         title='You need to configure API credentials to favorite'
                       />)}
@@ -375,9 +401,9 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
                           key={word}
                           onClick={() => mutedWordsFound.includes(word) ? deleteMutedWord(word) : createMutedWord(word)}
                           className={`px-2 py-1 rounded text-xs sm:text-sm ${mutedWordsFound.includes(word) ? 'bg-gray-300 text-gray-500' :
-                              word.startsWith('#')
-                                ? 'bg-red-500 text-white hover:bg-red-600' // Styling for hashtags
-                                : 'bg-orange-500 text-white hover:bg-red-600'  // Styling for regular words
+                            word.startsWith('#')
+                              ? 'bg-red-500 text-white hover:bg-red-600' // Styling for hashtags
+                              : 'bg-orange-500 text-white hover:bg-red-600'  // Styling for regular words
                             }`}
                           title='Click to mute/unmute'
                         >
@@ -392,43 +418,14 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
               {/* Admin section - full width on mobile, side panel on desktop */}
               {matchingReason ? '' : isMuted ? '' : (
                 <div className="w-full flex items-start space-x-4 border-t sm:border-t-0 sm:border-l p-2 bg-gray-50">
-                  <div className="flex flex-row gap-1 sm:gap-2 max-h-32 sm:max-h-64 overflow-y-auto relative">
-                    {activeReasons.map(({ reason: tag, filter }) => {
-                      const hasTag = post.account_tags?.some(t => t.tag === tag);
-                      const count = getAccountTagCount(post.account_tags, tag);
-                      const color = filter === 1 ? 'red' : 'green';
-
-                      return (
-                        <div key={tag} className="flex flex-row gap-1 ">
-                          <AsyncButton
-                            callback={async () => {
-                              const tags = await handleTag(tag, post.account_id, post.account_username, post.server_slug);
-                              if (tags) {
-                                updateAccountTags(post.account_id, tags);
-                              }
-                            }}
-                            defaultText={hasTag ? `${tag}(${count})` : tag}
-                            color={color}
-                            extraClasses='text-xs sm:text-sm'
-                          />
-                          {hasTag ? (
-                            <AsyncButton
-                              callback={async () => {
-                                const tags = await handleClearTag(post.account_id, post.account_username, tag, post.server_slug);
-                                if (tags) {
-                                  updateAccountTags(post.account_id, tags);
-                                }
-                              }}
-                              loadingText={`Clearing ${tag}...`}
-                              defaultText="×"
-                              color={color}
-                            />
-                          ) : null}
-
-                        </div>
-                      )
-                    })}
-                  </div>
+                  <AccountTagButtons
+                    accountId={post.account_id}
+                    accountUsername={post.account_username}
+                    serverSlug={post.server_slug}
+                    activeReasons={activeReasons}
+                    tagCountsByAccount={tagCountsByAccount}
+                    updateAccountTags={updateAccountTags}
+                  />
                 </div>
               )}
 
@@ -457,10 +454,20 @@ const PostList: React.FC<PostListProps> = ({ posts: initialPosts, server, filter
         />
       )}
 
-      {activeAccount && (
+      {activeAccount && activePost && (
         <AccountPostsModal
           accountId={activeAccount}
-          onClose={() => setActiveAccount(null)}
+          accountAcct={activePost.account_acct}
+          accountUsername={activePost.account_username}
+          serverSlug={server}
+          activeReasons={activeReasons}
+          tagCountsByAccount={tagCountsByAccount}
+          updateAccountTags={updateAccountTags}
+          invalidateTimeline={invalidateTimeline}
+          onClose={() => {
+            setActiveAccount(null);
+            setActivePost(null);
+          }}
         />
       )}
     </div>

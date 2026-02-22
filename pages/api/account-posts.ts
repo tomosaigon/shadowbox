@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const {
     accountId,
     offset = '0',
-    limit = '20'
+    limit = '100'
   } = req.query;
 
   if (!accountId || typeof accountId !== 'string') {

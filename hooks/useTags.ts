@@ -24,6 +24,11 @@ export const useTags = (): UseTagsReturn => {
   const queryClient = useQueryClient();
   const TAGS_QUERY_KEY = ['tags'];
 
+  // TODO: Implement this
+  // const invalidateServerStats = () => {
+  //   queryClient.invalidateQueries({ queryKey: ['serverStats', all ? 'all' : server] });
+  // };
+
   const handleTagMutation = useMutation<TagResponse, Error, TagPayload>({
     mutationFn: async (payload) => {
       const res = await fetch('/api/tag-account', {

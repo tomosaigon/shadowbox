@@ -26,6 +26,6 @@ export default {
     },
     "disabled:bg-gray-400",
   ],
-  darkMode: "class",
+  // darkMode: "class",
   plugins: [heroui()], // Add Hero UI plugin
 } satisfies Config;

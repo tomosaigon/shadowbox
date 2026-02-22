@@ -5,7 +5,8 @@ export const useMarkPosts = (server: string, bucket?: string) => {
   const markSeen = useMutation({
     mutationFn: async ({ posts, chronological, invalidateTimeline }: { posts: any[]; chronological: boolean, invalidateTimeline: () => void }) => {
       if (posts.length === 0) {
-        throw new Error('No posts to mark as seen');
+        // throw new Error('No posts to mark as seen');
+        return { updatedCount: 0 };
       }
 
       // Still needed?
@@ -68,7 +69,7 @@ export const useMarkPosts = (server: string, bucket?: string) => {
       return res.json();
     },
     onSuccess: (data) => {
-      toast.success(`Marked ${data.updatedCount} posts as saved`);
+      toast.success(`Marked post as saved`);
     },
     onError: (error: Error) => {
       toast.error(error.message);
