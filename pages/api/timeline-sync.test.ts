@@ -15,7 +15,6 @@ import handler from './timeline-sync';
 import mockApiResponse from './timeline-sync.test.example.json';
 
 // Mock dependencies
-jest.mock('../../config/servers');
 const mockAxios = new MockAdapter(axios);
 
 describe('Timeline Sync Tests', () => {
